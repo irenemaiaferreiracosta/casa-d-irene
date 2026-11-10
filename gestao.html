@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão — Casa d'Irene</title>
+
+  <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="marca">Casa d'Irene</a>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="loja.html">Loja</a>
+      <a href="blog.html">Blog</a>
+      <a href="gestao.html" class="ativo">Gestão</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Gestão da loja</h1>
+    <p class="aviso-gestao">Área de exemplo, sem palavra-passe. As alterações ficam guardadas só neste navegador e neste computador. Para uma gestão a sério (vários dispositivos, encomendas, segurança) seria preciso um servidor.</p>
+
+    <div class="resumo" id="resumo"></div>
+
+    <div class="tabela-scroll">
+      <table class="tabela-gestao">
+        <thead>
+          <tr><th>Produto</th><th>Categoria</th><th>Preço (€)</th><th>Stock</th><th>Visível</th><th></th></tr>
+        </thead>
+        <tbody id="corpo-tabela"></tbody>
+      </table>
+    </div>
+
+    <h2 class="titulo-secao" style="margin-top:2.5rem">Novo produto</h2>
+    <div class="form-novo">
+      <input id="novo-nome" placeholder="Nome do produto">
+      <select id="novo-categoria"></select>
+      <input id="novo-preco" type="number" min="0" step="0.5" placeholder="Preço (€)">
+      <input id="novo-stock" type="number" min="0" step="1" placeholder="Stock">
+      <input id="novo-pers" placeholder="O que se pode personalizar">
+      <button class="btn-gestao" onclick="adicionarProduto()">Adicionar</button>
+    </div>
+
+    <div class="acoes-gestao">
+      <button class="btn-gestao" onclick="exportar()">Exportar cópia (JSON)</button>
+      <button class="btn-gestao secundario" onclick="repor()">Repor lista original</button>
+    </div>
+  </main>
+
+  <footer>Casa d'Irene </footer>
+
+  <script src="produtos.js"></script>
+  <script>
+    const categoriasGestao = ["Croché", "Malha", "Bordados", "Pintura", "Outras técnicas"];
+    let produtos = carregarProdutos();
+
+    function guardar() { guardarProdutos(produtos); desenhar(); }
+
+    function desenhar() {
+      document.getElementById("novo-categoria").innerHTML =
+        categoriasGestao.map(c => `<option>${c}</option>`).join("");
+
+      const visiveis = produtos.filter(p => p.visivel).length;
+      const esgotados = produtos.filter(p => p.stock <= 0).length;
+      const valor = produtos.reduce((t, p) => t + p.preco * p.stock, 0);
+      document.getElementById("resumo").innerHTML = `
+        <div><strong>${produtos.length}</strong><span>produtos</span></div>
+        <div><strong>${visiveis}</strong><span>visíveis na loja</span></div>
+        <div><strong>${esgotados}</strong><span>esgotados</span></div>
+        <div><strong>${valor.toFixed(0)}€</strong><span>valor em stock</span></div>`;
+
+      document.getElementById("corpo-tabela").innerHTML = produtos.map(p => `
+        <tr>
+          <td>${p.nome}</td>
+          <td>${p.categoria}</td>
+          <td><input type="number" min="0" step="0.5" value="${p.preco}" onchange="alterar(${p.id}, 'preco', this.value)"></td>
+          <td><input type="number" min="0" step="1" value="${p.stock}" onchange="alterar(${p.id}, 'stock', this.value)"></td>
+          <td><input type="checkbox" ${p.visivel ? "checked" : ""} onchange="alterar(${p.id}, 'visivel', this.checked)"></td>
+          <td><button class="btn-remover" onclick="remover(${p.id})" title="Remover">✕</button></td>
+        </tr>`).join("");
+    }
+
+    function alterar(id, campo, valor) {
+      const p = produtos.find(x => x.id === id);
+      p[campo] = (campo === "visivel") ? valor : Math.max(0, Number(valor) || 0);
+      guardar();
+    }
+
+    function remover(id) {
+      const p = produtos.find(x => x.id === id);
+      if (confirm(`Remover "${p.nome}"?`)) {
+        produtos = produtos.filter(x => x.id !== id);
+        guardar();
+      }
+    }
+
+    function adicionarProduto() {
+      const nome = document.getElementById("novo-nome").value.trim();
+      if (!nome) { alert("Escreve o nome do produto."); return; }
+      const id = produtos.reduce((m, p) => Math.max(m, p.id), 0) + 1;
+      produtos.push({
+        id, nome,
+        categoria: document.getElementById("novo-categoria").value,
+        preco: Number(document.getElementById("novo-preco").value) || 0,
+        stock: Number(document.getElementById("novo-stock").value) || 0,
+        visivel: true,
+        personalizavel: document.getElementById("novo-pers").value.trim() || "Sob consulta",
+        imagem: null
+      });
+      ["novo-nome", "novo-preco", "novo-stock", "novo-pers"].forEach(i => document.getElementById(i).value = "");
+      guardar();
+    }
+
+    function exportar() {
+      const blob = new Blob([JSON.stringify(produtos, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "produtos-casadirene.json";
+      a.click();
+    }
+
+    function repor() {
+      if (confirm("Repor a lista original de 14 produtos? As alterações serão perdidas.")) {
+        reporProdutos();
+        produtos = carregarProdutos();
+        desenhar();
+      }
+    }
+
+    desenhar();
+  </script>
+
+</body>
+</html>

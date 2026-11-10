@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  <title>Loja — Casa d'Irene</title>
+  <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="marca">Casa d'Irene</a>
+    <nav>
+      <a href="index.html">Início</a>
+      <a href="loja.html" class="ativo">Loja</a>
+      <a href="blog.html">Blog</a>
+      <a href="gestao.html">Gestão</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Bem-vindo à Loja da Casa d'Irene</h1>
+    <p>Descubra peças artesanais únicas, criadas com dedicação, criatividade e respeito pela natureza. 
+      Cada peça é cuidadosamente feita à mão e pode ser personalizada para criar algo verdadeiramente especial, pensado exclusivamente para si.</p>
+    <h3>Encontre a peça perfeita ou crie algo único à sua medida.</h3> 
+    
+
+    <p style="color: var(--ink-soft)">Pretende uma peça personalizada? Utilize o formulário de encomenda mais abaixo para indicar o texto, nome, data ou mensagem que deseja gravar, bordar ou incluir na sua criação. 
+      <p></p>Também pode escolher a cor, o tamanho e anexar uma imagem de referência para nos ajudar a concretizar a sua ideia.</p>
+      <br>
+
+    <div class="filtros" id="filtros">
+      <!-- Os botões de filtro são gerados pelo JavaScript -->
+    </div>
+
+    <div class="grelha-produtos" id="grelha">
+      <!-- Os produtos são gerados pelo JavaScript a partir da lista abaixo -->
+
+
+    </div>
+  </main>
+
+  
+      <section class="encomenda">
+    <h2>Pedido de Encomenda</h2>
+
+    <form id="formEncomenda">
+
+        <input
+            type="text"
+            id="nome"
+            placeholder="O seu nome"
+            required>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="O seu email"
+            required>
+
+        <label for="produto">Produto</label>
+        <select id="produto" required>
+            <option value="">Escolha um produto</option>
+            <option>Malas</option>
+            <option>Sapatos</option>
+            <option>Bordados</option>
+            <option>Peças em Croche</option>
+            <option>Decoração</option>
+            <option>Outro</option>
+        </select>
+
+        <label>Escolha a Cor</label>
+
+        <div class="cores">
+
+            <label>
+                <input type="radio" name="cor" value="Branco" required>
+                <span class="cor branco"></span>
+            </label>
+
+            <label>
+                <input type="radio" name="cor" value="Bege">
+                <span class="cor bege"></span>
+            </label>
+
+            <label>
+                <input type="radio" name="cor" value="Rosa">
+                <span class="cor rosa"></span>
+            </label>
+
+            <label>
+                <input type="radio" name="cor" value="Azul">
+                <span class="cor azul"></span>
+            </label>
+
+            <label>
+                <input type="radio" name="cor" value="Verde">
+                <span class="cor verde"></span>
+            </label>
+
+        </div>
+
+        <label for="tamanho">Tamanho</label>
+
+        <select id="tamanho" required>
+            <option value="">Escolha o tamanho</option>
+            <option>Pequeno</option>
+            <option>Médio</option>
+            <option>Grande</option>
+            <option>Personalizado</option>
+        </select>
+
+        <input
+            type="text"
+            id="medidas"
+            placeholder="Tamanho pretendido (ex.: 36, 37, 38, 40)">
+
+        <textarea
+            id="mensagem"
+            rows="5"
+            placeholder="Escreva aqui os detalhes do seu pedido..."
+            required></textarea>
+
+        <label for="ficheiro">
+            Anexar imagem de referência
+        </label>
+
+        <input
+            type="file"
+            id="ficheiro"
+            accept="image/*">
+
+        <div class="preview-container">
+            <img
+                id="previewImagem"
+                alt="Pré-visualização da imagem">
+        </div>
+
+        <button type="submit">
+            Enviar Pedido
+        </button>
+
+    </form>
+
+    <p id="resultado"></p>
+</section>
+
+
+
+  <div class="carrinho-flutuante" id="carrinho">Carrinho: 0 peças</div>
+
+  <footer>Casa d'Irene — Versão 1.0</footer>
+
+  <script src="produtos.js"></script>
+  <script>
+
+    // Os produtos vêm de produtos.js e podem ser alterados na página Gestão
+
+    const categorias = ["Todas", "Croché", "Malha", "Bordados", "Pintura", "Outras técnicas"];
+    let categoriaAtiva = "Todas";
+    let totalCarrinho = 0;
+
+    // Se a foto não existir na pasta imagens_casa_direne/, mostra "Foto em breve" em vez de uma imagem partida.
+    function fotoEmFalta(img) {
+  const caixa = document.createElement("div");
+  caixa.className = "imagem sem-foto";
+  caixa.innerText = "Foto em breve";
+  img.replaceWith(caixa);
+}
+
+    function criarBotaoFiltro(categoria) {
+      const ativo = categoria === categoriaAtiva ? "ativo" : "";
+      return `<button class="filtro ${ativo}" onclick="filtrarPor('${categoria}')">${categoria}</button>`;
+    }
+
+    function criarCartaoProduto(p) {
+      const imagem = p.imagem
+        ? `<img class="imagem" src="${p.imagem}" alt="${p.nome}" loading="lazy" onerror="fotoEmFalta(this)">`
+        : `<div class="imagem sem-foto">Foto em breve</div>`;
+      const esgotado = p.stock <= 0;
+      return `
+        <div class="produto">
+          ${imagem}
+          <p class="categoria-tag">${p.categoria}</p>
+          <h3>${p.nome}</h3>
+          <p class="nota-personalizacao">${p.personalizavel}</p>
+          <p class="preco">${p.preco}€ ${esgotado ? "· Esgotado" : ""}</p>
+          <input type="text" id="input-${p.id}" placeholder="Nome ou mensagem" ${esgotado ? "disabled" : ""}
+            style="width:100%; margin-bottom:0.6rem; padding:0.4rem; border:1px solid var(--line); font-family:inherit;">
+          <button id="btn-${p.id}" onclick="adicionarAoCarrinho(${p.id})" ${esgotado ? "disabled" : ""}>
+            ${esgotado ? "Esgotado" : "Adicionar ao carrinho"}
+          </button>
+        </div>`;
+    }
+
+    function renderizarFiltros() {
+      document.getElementById("filtros").innerHTML = categorias.map(criarBotaoFiltro).join("");
+    }
+
+    function renderizarProdutos() {
+      const lista = carregarProdutos().filter(p => p.visivel &&
+        (categoriaAtiva === "Todas" || p.categoria === categoriaAtiva));
+      document.getElementById("grelha").innerHTML = lista.map(criarCartaoProduto).join("");
+    }
+
+    function filtrarPor(categoria) {
+      categoriaAtiva = categoria;
+      renderizarFiltros();
+      renderizarProdutos();
+    }
+
+    function adicionarAoCarrinho(id) {
+      const texto = document.getElementById(`input-${id}`).value.trim();
+      totalCarrinho++;
+      document.getElementById("carrinho").innerText = `Carrinho: ${totalCarrinho} peças`;
+      const botao = document.getElementById(`btn-${id}`);
+      botao.innerText = texto ? `Adicionado: "${texto}" ✓` : "Adicionado ✓";
+      botao.classList.add("adicionado");
+      setTimeout(() => {
+        botao.innerText = "Adicionar ao carrinho";
+        botao.classList.remove("adicionado");
+      }, 1600);
+    }
+
+    renderizarFiltros();
+    renderizarProdutos();
+  </script>
+
+</body>
+</html>
+

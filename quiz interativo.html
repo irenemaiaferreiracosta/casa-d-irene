@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz Aveiro Sustentável</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:
+    linear-gradient(
+        rgba(0,0,0,0.45),
+        rgba(0,0,0,0.45)
+    ),
+    url("https://imagens.publico.pt/imagens.aspx/1515240?tp=UH&db=IMAGENS&type=JPG");
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:10px;
+}
+
+.container{
+    background:rgba(255,255,255,0.95);
+    width:100%;
+    max-width:700px;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+
+#ecraInicial{
+    text-align:center;
+}
+
+#ecraInicial h1{
+    color:#2e7d32;
+    margin-bottom:15px;
+}
+
+#ecraInicial p{
+    font-size:18px;
+    line-height:1.6;
+    margin-bottom:25px;
+}
+
+.escondido{
+    display:none;
+}
+
+#tempo{
+    font-size:20px;
+    color:#d32f2f;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.barra{
+    width:100%;
+    height:20px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:25px;
+}
+
+#progresso{
+    width:0;
+    height:100%;
+    background:#4caf50;
+    transition:.5s;
+}
+
+#pergunta{
+    text-align:center;
+    color:#2e7d32;
+    font-size:24px;
+    margin-bottom:20px;
+}
+
+.resposta{
+    width:100%;
+    min-height:50px;
+    padding:12px;
+    margin:8px 0;
+    border:none;
+    border-radius:8px;
+    background:#4caf50;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.resposta:hover{
+    background:#388e3c;
+}
+
+.selecionada{
+    background:#ff9800;
+}
+
+#btnComecar,
+#btnSeguinte{
+    width:100%;
+    min-height:50px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    font-size:18px;
+}
+
+#btnComecar{
+    background:#2e7d32;
+}
+
+#btnSeguinte{
+    background:#1976d2;
+    margin-top:15px;
+}
+
+#btnComecar:hover{
+    background:#1b5e20;
+}
+
+#btnSeguinte:hover{
+    background:#125aa0;
+}
+
+#resultado{
+    text-align:center;
+}
+
+#pontuacao{
+    font-size:22px;
+    margin:20px 0;
+}
+
+#nomeJogador{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+}
+
+.botao{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    margin:5px;
+}
+
+.guardar{
+    background:#4caf50;
+}
+
+.reiniciar{
+    background:#1976d2;
+}
+
+#ranking{
+    margin-top:20px;
+    text-align:left;
+}
+
+footer{
+    text-align:center;
+    margin-top:20px;
+    color:#666;
+    font-size:14px;
+}
+
+@media(max-width:768px){
+
+    .container{
+        max-width:100%;
+        padding:15px;
+    }
+
+    #ecraInicial h1{
+        font-size:24px;
+    }
+
+    #ecraInicial p{
+        font-size:16px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div id="ecraInicial">
+
+        <h1>🚴 Quiz Aveiro Sustentável</h1>
+
+        <p>
+            Descobrir Aveiro de forma sustentável,
+            pedalando entre cultura, natureza e tradição.
+        </p>
+
+        <button id="btnComecar">
+            Começar Jogo
+        </button>
+
+    </div>
+
+    <div id="quiz" class="escondido">
+
+        <div id="tempo">Tempo: 30</div>
+
+        <div class="barra">
+            <div id="progresso"></div>
+        </div>
+
+        <h2 id="pergunta"></h2>
+
+        <div id="respostas"></div>
+
+        <button id="btnSeguinte">
+            Seguinte
+        </button>
+
+    </div>
+
+    <div id="resultado" class="escondido">
+
+        <h2>Resultado Final</h2>
+
+        <p id="pontuacao"></p>
+
+        <input
+            type="text"
+            id="nomeJogador"
+            placeholder="Introduz o teu nome">
+
+        <button
+            class="botao guardar"
+            onclick="guardarPontuacao()">
+            Guardar Ranking
+        </button>
+
+        <button
+            class="botao reiniciar"
+            onclick="reiniciar()">
+            Jogar Novamente
+        </button>
+
+        <h3 style="margin-top:20px;">
+            🏆 Ranking
+        </h3>
+
+        <ol id="ranking"></ol>
+
+    </div>
+
+    <footer>
+        © 2026 Roteiros Buga d'Irene  | Mobilidade Sustentável | Versão 1.0
+    </footer>
+
+</div>
+
+<script>
+
+const perguntas = [
+
+
+{
+    pergunta:"Qual é a cidade conhecida pelos moliceiros?",
+    respostas:["Porto","Aveiro","Braga","Coimbra"],
+    correta:1
+},
+
+{
+    pergunta:"Qual é um transporte sustentável?",
+    respostas:["Automóvel","Helicóptero","Bicicleta","Motociclo"],
+    correta:2
+},
+
+{
+    pergunta:"Qual é o doce típico de Aveiro?",
+    respostas:["Ovos Moles","Pão de Ló","Queijadas","Pastéis de Feijão"],
+    correta:0
+},
+
+{
+    pergunta:"Onde ficam as famosas salinas?",
+    respostas:["Ria de Aveiro","Tejo","Mondego","Douro"],
+    correta:0
+},
+
+{
+    pergunta:"Qual destas ações ajuda o ambiente?",
+    respostas:["Poluir","Reciclar","Desperdiçar","Queimar"],
+    correta:1
+},
+
+{
+    pergunta:"Qual a cor do ecoponto do papel?",
+    respostas:["Verde","Amarelo","Azul","Castanho"],
+    correta:2
+},
+
+{
+    pergunta:"Que veículo não produz emissões diretas?",
+    respostas:["Motociclo","Automóvel","Bicicleta","Camioneta"],
+    correta:2
+},
+
+{
+    pergunta:"A Ria de Aveiro é:",
+    respostas:["Montanha","Lagoa costeira","Rio","Floresta"],
+    correta:1
+},
+
+{
+    pergunta:"Qual destas energias é renovável?",
+    respostas:["Gasolina","Petróleo","Solar","Carvão"],
+    correta:2
+},
+
+{
+    pergunta:"O ecoponto amarelo recebe:",
+    respostas:["Vidro","Madeira","Plástico","Papel"],
+    correta:2
+},
+
+{
+    pergunta:"Aveiro pertence ao distrito de:",
+    respostas:["Leiria","Viseu","Aveiro","Porto"],
+    correta:2
+},
+
+{
+    pergunta:"Qual é a melhor forma de reduzir resíduos?",
+    respostas:["Reutilizar","Queimar","Enterrar","Desperdiçar"],
+    correta:0
+},
+
+{
+    pergunta:"Qual destes usa energia humana?",
+    respostas:["Barco","Bicicleta","Comboio","Carro"],
+    correta:1
+},
+
+{
+    pergunta:"Os ovos moles são feitos sobretudo de:",
+    respostas:["Chocolate","Mel","Leite","Ovos e açúcar"],
+    correta:3
+},
+
+{
+    pergunta:"Andar a pé ajuda a:",
+    respostas:[
+        "Aumentar poluição",
+        "Reduzir pegada ecológica",
+        "Produzir lixo",
+        "Gastar combustível"
+    ],
+    correta:1
+},
+
+{
+    pergunta:"Qual é a cidade conhecida pelos moliceiros?",
+    respostas:["Porto","Aveiro","Braga","Coimbra"],
+    correta:1
+},
+
+{
+    pergunta:"Qual é o doce típico de Aveiro?",
+    respostas:["Ovos Moles","Pão de Ló","Queijadas","Pastéis de Feijão"],
+    correta:0
+},
+
+{
+    pergunta:"Como se chamam os barcos típicos da Ria de Aveiro?",
+    respostas:["Caravelas","Moliceiros","Saveiros","Fragatas"],
+    correta:1
+},
+
+{
+    pergunta:"Qual destas aves pode ser observada na Ria de Aveiro?",
+    respostas:["Flamingo","Pinguim","Avestruz","Papagaio"],
+    correta:0
+},
+
+{
+    pergunta:"O que era tradicionalmente transportado pelos moliceiros?",
+    respostas:["Sal","Moliço","Peixe","Madeira"],
+    correta:1
+},
+
+{
+    pergunta:"Como são conhecidas as bicicletas gratuitas de Aveiro?",
+    respostas:["BUGA","MIA","RIA","AVEIROBIKE"],
+    correta:0
+}
+
+
+];
+
+function baralhar(array){
+
+    for(let i=array.length-1;i>0;i--){
+
+        let j=Math.floor(Math.random()*(i+1));
+
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+
+    return array;
+}
+
+baralhar(perguntas);
+
+const perguntasJogo = perguntas.slice(0, perguntas.length);
+
+let indice = 0;
+let pontos = 0;
+let respostaSelecionada = null;
+let tempo = 30;
+let contador;
+
+const pergunta =
+document.getElementById("pergunta");
+
+const respostas =
+document.getElementById("respostas");
+
+document
+.getElementById("btnComecar")
+.addEventListener("click", iniciarJogo);
+
+function iniciarJogo(){
+
+    document
+    .getElementById("ecraInicial")
+    .style.display = "none";
+
+    document
+    .getElementById("quiz")
+    .classList.remove("escondido");
+
+    mostrarPergunta();
+}
+
+function mostrarPergunta(){
+
+    respostaSelecionada = null;
+
+    pergunta.textContent =
+    perguntasJogo[indice].pergunta;
+
+    respostas.innerHTML = "";
+
+    perguntasJogo[indice]
+    .respostas
+    .forEach((texto,posicao)=>{
+
+        const btn =
+        document.createElement("button");
+
+        btn.textContent = texto;
+
+        btn.classList.add("resposta");
+
+        btn.addEventListener("click",()=>{
+
+            document
+            .querySelectorAll(".resposta")
+            .forEach(b =>
+                b.classList.remove("selecionada"));
+
+            btn.classList.add("selecionada");
+
+            respostaSelecionada = posicao;
+        });
+
+        respostas.appendChild(btn);
+
+    });
+
+    atualizarProgresso();
+    iniciarCronometro();
+}
+
+function iniciarCronometro(){
+
+    clearInterval(contador);
+
+    tempo = 30;
+
+    document.getElementById("tempo")
+    .textContent = "Tempo: " + tempo;
+
+    contador = setInterval(()=>{
+
+        tempo--;
+
+        document.getElementById("tempo")
+        .textContent = "Tempo: " + tempo;
+
+        if(tempo <= 0){
+
+            clearInterval(contador);
+
+            indice++;
+
+            if(indice < perguntasJogo.length){
+
+                mostrarPergunta();
+
+            }else{
+
+                mostrarResultado();
+            }
+        }
+
+    },1000);
+}
+
+function atualizarProgresso(){
+
+    let percentagem =
+    ((indice + 1) / perguntasJogo.length) * 100;
+
+    document
+    .getElementById("progresso")
+    .style.width = percentagem + "%";
+}
+
+document
+.getElementById("btnSeguinte")
+.addEventListener("click",()=>{
+
+    if(respostaSelecionada === null){
+
+        alert("Seleciona uma resposta.");
+        return;
+    }
+
+    clearInterval(contador);
+
+    if(
+        respostaSelecionada ===
+        perguntasJogo[indice].correta
+    ){
+        pontos++;
+    }
+
+    indice++;
+
+    if(indice < perguntasJogo.length){
+
+        mostrarPergunta();
+
+    }else{
+
+        mostrarResultado();
+    }
+});
+
+function mostrarResultado(){
+
+    let mensagem="";
+
+    if(pontos >= 5){
+
+        mensagem =
+        "🏆 Excelente! És um verdadeiro especialista em Aveiro Sustentável!";
+
+    }else if(pontos >= 3){
+
+        mensagem =
+        "🚴 Muito bem! Conheces bastante sobre Aveiro.";
+
+    }else{
+
+        mensagem =
+        "🌿 Continua a explorar Aveiro e tenta novamente!";
+    }
+
+    document
+    .getElementById("quiz")
+    .classList.add("escondido");
+
+    document
+    .getElementById("resultado")
+    .classList.remove("escondido");
+
+    document
+    .getElementById("pontuacao")
+    .innerHTML =
+    `Acertaste ${pontos} de ${perguntasJogo.length} perguntas.<br><br>${mensagem}`;
+
+    mostrarRanking();
+}
+
+function guardarPontuacao(){
+
+    let nome =
+    document.getElementById("nomeJogador")
+    .value.trim();
+
+    if(nome===""){
+        alert("Introduz o teu nome.");
+        return;
+    }
+
+    let ranking =
+    JSON.parse(localStorage.getItem("ranking")) || [];
+
+    ranking.push({
+        nome:nome,
+        pontos:pontos
+    });
+
+    ranking.sort(
+        (a,b)=>b.pontos-a.pontos
+    );
+
+    localStorage.setItem(
+        "ranking",
+        JSON.stringify(ranking)
+    );
+
+    mostrarRanking();
+}
+
+function mostrarRanking(){
+
+    let lista =
+    document.getElementById("ranking");
+
+    lista.innerHTML = "";
+
+    let ranking =
+    JSON.parse(localStorage.getItem("ranking")) || [];
+
+    ranking.forEach((jogador,posicao)=>{
+
+        const li =
+        document.createElement("li");
+
+        li.textContent =
+        jogador.nome +
+        " - " +
+        jogador.pontos +
+        " pontos";
+
+        lista.appendChild(li);
+    });
+}
+
+function reiniciar(){
+    location.reload();
+}
+
+</script>
+
+</body>
+</html>
